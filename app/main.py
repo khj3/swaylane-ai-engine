@@ -19,7 +19,6 @@ app.include_router(analytics.router, prefix="/api")
 app.include_router(loyalty.router, prefix="/api")
 app.include_router(vault.router, prefix="/api")
 app.include_router(fit.router, prefix="/api")
-app.include_router(fit.router, prefix="/api")
 
 
 @app.get("/health")

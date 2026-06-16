@@ -47,6 +47,81 @@ class BrandResponse(BaseModel):
     status: Optional[str] = None
 
 
+class BrandProfile(BaseModel):
+    brand_name: str
+    brand_slug: Optional[str] = None
+    logo_url: Optional[str] = None
+    description: Optional[str] = None
+    website: Optional[str] = None
+    instagram: Optional[str] = None
+    tiktok: Optional[str] = None
+    contact_email: Optional[str] = None
+    contact_phone: Optional[str] = None
+    legal_business_name: Optional[str] = None
+    business_address: Optional[str] = None
+    city: Optional[str] = None
+    state: Optional[str] = None
+    zip: Optional[str] = None
+    country: Optional[str] = None
+    brand_category: Optional[str] = None
+    brand_style: Optional[str] = None
+    target_customer: Optional[str] = None
+    price_range: Optional[str] = None
+    fit_identity: Optional[str] = None
+    shipping_policy: Optional[str] = None
+    return_policy: Optional[str] = None
+    processing_time: Optional[str] = None
+    customer_support_email: Optional[str] = None
+
+
+class BrandProductSubmission(BaseModel):
+    id: Optional[str] = None
+    brand_id: str
+    title: str
+    description: Optional[str] = None
+    category: Optional[str] = None
+    product_type: Optional[str] = None
+    price: Optional[float] = None
+    compare_at_price: Optional[float] = None
+    sku: Optional[str] = None
+    inventory_quantity: int = 0
+    shipping_weight: Optional[float] = None
+    tags: Optional[str] = None
+    material_composition: Optional[str] = None
+    fabric_weight: Optional[str] = None
+    stretch_level: Optional[str] = None
+    thickness: Optional[str] = None
+    care_instructions: Optional[str] = None
+    season: Optional[str] = None
+    fit_type: Optional[str] = None
+    fit_notes: Optional[str] = None
+    model_height: Optional[str] = None
+    model_weight: Optional[str] = None
+    model_wearing_size: Optional[str] = None
+    runs_small: bool = False
+    true_to_size: bool = True
+    runs_large: bool = False
+    garment_type: Optional[str] = None
+    ai_ready: bool = False
+    prompt_guidance: Optional[str] = None
+    tryon_image_url: Optional[str] = None
+    fabric_behavior: Optional[str] = None
+    ai_limitations: Optional[str] = None
+    supports_full_body_tryon: bool = True
+    supports_style_preview: bool = True
+    rack_ready: bool = False
+    layer_category: Optional[str] = None
+    can_layer: bool = True
+    recommended_pairings: Optional[str] = None
+    conflicting_categories: Optional[str] = None
+    styling_notes: Optional[str] = None
+    outfit_prompt_guidance: Optional[str] = None
+    status: str = "draft"
+    variants: Optional[List[dict]] = None
+    images: Optional[List[dict]] = None
+    measurements: Optional[List[dict]] = None
+
+
 class AnalyticsEvent(BaseModel):
     event_type: str
     customer_id: Optional[str] = None
@@ -173,3 +248,17 @@ class SizeRecommendationResult(BaseModel):
     confidence_score: int
     confidence_label: str
     fit_warning: Optional[str] = None
+
+
+class BrandDashboardMetrics(BaseModel):
+    total_products: int = 0
+    draft_products: int = 0
+    submitted_products: int = 0
+    approved_products: int = 0
+    rejected_products: int = 0
+    ai_ready_count: int = 0
+    rack_ready_count: int = 0
+    published_count: int = 0
+    missing_ai_data: int = 0
+    missing_measurements: int = 0
+    missing_rack_data: int = 0

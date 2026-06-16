@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 from ..models import SavedLookCreate, SavedLookResponse
 from ..services.supabase import db
 
-router = APIRouter(prefix="/api/vault", tags=["vault"])
+router = APIRouter(prefix="/vault", tags=["vault"])
 
 
 @router.post("", response_model=SavedLookResponse)

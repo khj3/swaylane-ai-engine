@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 from ..models import AnalyticsEvent
 from ..services.supabase import db
 
-router = APIRouter(prefix="/api/analytics", tags=["analytics"])
+router = APIRouter(prefix="/analytics", tags=["analytics"])
 
 
 @router.post("/events")

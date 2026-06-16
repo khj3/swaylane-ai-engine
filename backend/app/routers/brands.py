@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 from ..models import BrandCreate, BrandResponse
 from ..services.supabase import db
 
-router = APIRouter(prefix="/api/brands", tags=["brands"])
+router = APIRouter(prefix="/brands", tags=["brands"])
 
 
 @router.post("", response_model=BrandResponse)

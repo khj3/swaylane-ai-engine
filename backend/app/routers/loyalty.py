@@ -3,7 +3,7 @@ from ..models import LoyaltyProfile, LoyaltyTransaction
 from ..services.supabase import db
 import uuid
 
-router = APIRouter(prefix="/api/loyalty", tags=["loyalty"])
+router = APIRouter(prefix="/loyalty", tags=["loyalty"])
 
 
 @router.get("/profile/{customer_id}")

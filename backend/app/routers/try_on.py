@@ -8,7 +8,7 @@ from ..services.replicate_client import run_replicate
 from ..services.supabase import db
 
 logger = logging.getLogger(__name__)
-router = APIRouter(prefix="/api/try-on", tags=["try-on"])
+router = APIRouter(prefix="/try-on", tags=["try-on"])
 
 FLUX_MODEL = "black-forest-labs/flux-schnell"
 

@@ -16,7 +16,7 @@ from ..services.supabase import db
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/api/fit", tags=["fit"])
+router = APIRouter(prefix="/fit", tags=["fit"])
 
 
 # ---------------------------------------------------------------------------

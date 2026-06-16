@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 from ..models import AccountCreate, AccountResponse
 from ..services.supabase import db
 
-router = APIRouter(prefix="/api/accounts", tags=["accounts"])
+router = APIRouter(prefix="/accounts", tags=["accounts"])
 
 
 @router.post("", response_model=AccountResponse)

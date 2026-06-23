@@ -1,7 +1,8 @@
 import uuid
+import hashlib
 import logging
 from fastapi import APIRouter, HTTPException
-from ..models import BrandCreate, BrandResponse, BrandProfile, BrandDashboardMetrics, BrandProductSubmission
+from ..models import BrandCreate, BrandLogin, BrandResponse, BrandProfile, BrandDashboardMetrics, BrandProductSubmission
 from ..services.supabase import db
 from ..services.scoring import calculate_ai_readiness, calculate_rack_readiness
 
@@ -12,13 +13,68 @@ router = APIRouter(prefix="/brands", tags=["brands"])
 @router.post("", response_model=BrandResponse)
 async def create_brand(payload: BrandCreate):
     try:
-        data = payload.dict()
-        data["id"] = str(uuid.uuid4())
+        data = payload.dict(exclude_unset=True)
+        password = data.pop("password", None)
+        owner_name = data.pop("owner_name", None)
+
+        brand_id = str(uuid.uuid4())
+        data["id"] = brand_id
         data["status"] = "pending"
-        data["brand_slug"] = data["name"].lower().replace(" ", "-").replace("/", "-")
+        data["brand_slug"] = data["brand_name"].lower().replace(" ", "-").replace("/", "-")
+        if password:
+            data["password_hash"] = hashlib.sha256(password.encode()).hexdigest()
+
         result = db.insert("brands", data)
         row = result.data[0] if result.data else data
-        return BrandResponse(id=row.get("id"), name=row.get("brand_name", data["name"]), status=row.get("status"))
+
+        user_id = str(uuid.uuid4())
+        db.insert("brand_users", {
+            "id": str(uuid.uuid4()),
+            "brand_id": brand_id,
+            "user_id": user_id,
+            "role": "owner",
+            "status": "active",
+        })
+
+        db.insert("brand_activity_logs", {
+            "id": str(uuid.uuid4()),
+            "brand_id": brand_id,
+            "user_id": user_id,
+            "action": "brand_created",
+            "metadata": {"owner_name": owner_name},
+        })
+
+        return BrandResponse(
+            id=row.get("id"),
+            name=row.get("brand_name", data["brand_name"]),
+            status=row.get("status"),
+            user_id=user_id,
+        )
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.post("/login", response_model=BrandResponse)
+async def login_brand(payload: BrandLogin):
+    try:
+        result = db.select("brands", "contact_email", payload.contact_email)
+        if not result.data or len(result.data) == 0:
+            raise HTTPException(status_code=401, detail="Invalid email or password")
+        row = result.data[0]
+        stored_hash = row.get("password_hash", "")
+        input_hash = hashlib.sha256(payload.password.encode()).hexdigest()
+        if stored_hash != input_hash:
+            raise HTTPException(status_code=401, detail="Invalid email or password")
+        user_result = db.select("brand_users", "brand_id", row["id"])
+        user_id = user_result.data[0]["user_id"] if user_result.data else ""
+        return BrandResponse(
+            id=row.get("id"),
+            name=row.get("brand_name"),
+            status=row.get("status"),
+            user_id=user_id,
+        )
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 

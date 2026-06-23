@@ -34,17 +34,44 @@ class AccountResponse(BaseModel):
 
 
 class BrandCreate(BaseModel):
-    name: str
-    description: Optional[str] = None
-    logo_url: Optional[str] = None
-    website_url: Optional[str] = None
+    brand_name: str
+    owner_name: Optional[str] = None
     contact_email: Optional[str] = None
+    password: Optional[str] = None
+    logo_url: Optional[str] = None
+    description: Optional[str] = None
+    website: Optional[str] = None
+    brand_category: Optional[str] = None
+    legal_business_name: Optional[str] = None
+    business_address: Optional[str] = None
+    city: Optional[str] = None
+    state: Optional[str] = None
+    zip: Optional[str] = None
+    country: Optional[str] = None
+    brand_style: Optional[str] = None
+    target_customer: Optional[str] = None
+    price_range: Optional[str] = None
+    fit_identity: Optional[str] = None
+    brand_story: Optional[str] = None
+    shipping_policy: Optional[str] = None
+    return_policy: Optional[str] = None
+    processing_time: Optional[str] = None
+    customer_support_email: Optional[str] = None
+    instagram: Optional[str] = None
+    tiktok: Optional[str] = None
+    contact_phone: Optional[str] = None
+
+
+class BrandLogin(BaseModel):
+    contact_email: str
+    password: str
 
 
 class BrandResponse(BaseModel):
     id: Optional[str] = None
     name: Optional[str] = None
     status: Optional[str] = None
+    user_id: Optional[str] = None
 
 
 class BrandProfile(BaseModel):

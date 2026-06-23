@@ -12,6 +12,8 @@ CREATE TABLE IF NOT EXISTS brands (
   tiktok TEXT,
   contact_email TEXT,
   contact_phone TEXT,
+  password_hash TEXT,
+  brand_story TEXT,
   legal_business_name TEXT,
   business_address TEXT,
   city TEXT,

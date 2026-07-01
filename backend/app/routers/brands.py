@@ -20,7 +20,6 @@ async def create_brand(payload: BrandCreate):
         brand_id = str(uuid.uuid4())
         data["id"] = brand_id
         data["status"] = "pending"
-        data["brand_slug"] = data.get("name", "").lower().replace(" ", "-").replace("/", "-")
         if password:
             data["password_hash"] = hashlib.sha256(password.encode()).hexdigest()
 

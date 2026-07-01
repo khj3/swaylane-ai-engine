@@ -34,7 +34,7 @@ class AccountResponse(BaseModel):
 
 
 class BrandCreate(BaseModel):
-    brand_name: str
+    name: str
     owner_name: Optional[str] = None
     contact_email: Optional[str] = None
     password: Optional[str] = None
@@ -75,7 +75,7 @@ class BrandResponse(BaseModel):
 
 
 class BrandProfile(BaseModel):
-    brand_name: str
+    name: str
     brand_slug: Optional[str] = None
     logo_url: Optional[str] = None
     description: Optional[str] = None

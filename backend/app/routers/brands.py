@@ -20,7 +20,7 @@ async def create_brand(payload: BrandCreate):
         brand_id = str(uuid.uuid4())
         data["id"] = brand_id
         data["status"] = "pending"
-        data["brand_slug"] = data["brand_name"].lower().replace(" ", "-").replace("/", "-")
+        data["brand_slug"] = data.get("name", "").lower().replace(" ", "-").replace("/", "-")
         if password:
             data["password_hash"] = hashlib.sha256(password.encode()).hexdigest()
 
@@ -46,7 +46,7 @@ async def create_brand(payload: BrandCreate):
 
         return BrandResponse(
             id=row.get("id"),
-            name=row.get("brand_name", data["brand_name"]),
+            name=row.get("name") or row.get("brand_name") or data.get("name", ""),
             status=row.get("status"),
             user_id=user_id,
         )
@@ -69,7 +69,7 @@ async def login_brand(payload: BrandLogin):
         user_id = user_result.data[0]["user_id"] if user_result.data else ""
         return BrandResponse(
             id=row.get("id"),
-            name=row.get("brand_name"),
+            name=row.get("name") or row.get("brand_name"),
             status=row.get("status"),
             user_id=user_id,
         )
@@ -85,7 +85,10 @@ async def get_brand(brand_id: str):
         result = db.select_by_id("brands", brand_id)
         if not result.data:
             raise HTTPException(status_code=404, detail="Brand not found")
-        return BrandProfile(**result.data[0])
+        row = result.data[0]
+        if "brand_name" in row and "name" not in row:
+            row["name"] = row.pop("brand_name")
+        return BrandProfile(**row)
     except HTTPException:
         raise
     except Exception as e:

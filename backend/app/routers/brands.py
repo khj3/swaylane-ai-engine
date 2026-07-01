@@ -102,6 +102,8 @@ async def update_brand(brand_id: str, payload: BrandProfile):
             raise HTTPException(status_code=404, detail="Brand not found")
         data = payload.dict(exclude_unset=True)
         data["updated_at"] = "now()"
+        if "name" in data and "brand_name" not in data:
+            data["brand_name"] = data.pop("name")
         db.update("brands", data, "id", brand_id)
         return {"message": "Brand updated"}
     except HTTPException:

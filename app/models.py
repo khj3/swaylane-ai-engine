@@ -34,10 +34,14 @@ class AccountResponse(BaseModel):
 
 
 class BrandCreate(BaseModel):
+    brand_name: str
     name: Optional[str] = None
-    owner_name: Optional[str] = None
-    contact_email: Optional[str] = None
-    password: Optional[str] = None
+    owner_name: str
+    contact_email: str
+    phone: str
+    password: str
+    country: str
+    state: str
     logo_url: Optional[str] = None
     description: Optional[str] = None
     website: Optional[str] = None
@@ -45,9 +49,7 @@ class BrandCreate(BaseModel):
     legal_business_name: Optional[str] = None
     business_address: Optional[str] = None
     city: Optional[str] = None
-    state: Optional[str] = None
     zip: Optional[str] = None
-    country: Optional[str] = None
     brand_style: Optional[str] = None
     target_customer: Optional[str] = None
     price_range: Optional[str] = None

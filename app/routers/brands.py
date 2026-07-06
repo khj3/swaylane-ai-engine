@@ -1,10 +1,14 @@
 import uuid
+import os
 import hashlib
+import secrets
 import logging
+from datetime import datetime, timedelta, timezone
 from fastapi import APIRouter, HTTPException
 from ..models import BrandCreate, BrandLogin, BrandResponse, BrandProfile, BrandDashboardMetrics, BrandProductSubmission
 from ..services.supabase import db
 from ..services.scoring import calculate_ai_readiness, calculate_rack_readiness
+from ..services.email import send_verification_email
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/brands", tags=["brands"])
@@ -20,6 +24,7 @@ async def create_brand(payload: BrandCreate):
         brand_id = str(uuid.uuid4())
         data["id"] = brand_id
         data["status"] = "pending"
+        data["email_verified"] = False
 
         brand_name = data.pop("brand_name", None) or data.get("name")
         data["name"] = brand_name or data.get("contact_email", "").split("@")[0] + "-brand"
@@ -29,6 +34,13 @@ async def create_brand(payload: BrandCreate):
 
         if password:
             data["password_hash"] = hashlib.sha256(password.encode()).hexdigest()
+
+        verification_token = secrets.token_urlsafe(48)
+        token_expires_at = (datetime.now(timezone.utc) + timedelta(hours=24)).isoformat()
+        now_iso = datetime.now(timezone.utc).isoformat()
+        data["verification_token"] = verification_token
+        data["verification_token_expires_at"] = token_expires_at
+        data["verification_email_sent_at"] = now_iso
 
         result = db.insert("brands", data)
         row = result.data[0] if result.data else data
@@ -50,11 +62,15 @@ async def create_brand(payload: BrandCreate):
             "metadata": {"owner_name": owner_name},
         })
 
+        brand_display_name = data.get("name", "Brand")
+        await send_verification_email(data.get("contact_email", ""), verification_token, brand_display_name)
+
         return BrandResponse(
             id=row.get("id"),
             name=row.get("name") or row.get("brand_name") or data.get("name", ""),
             status=row.get("status"),
             user_id=user_id,
+            email_verified=False,
         )
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -71,6 +87,13 @@ async def login_brand(payload: BrandLogin):
         input_hash = hashlib.sha256(payload.password.encode()).hexdigest()
         if stored_hash != input_hash:
             raise HTTPException(status_code=401, detail="Invalid email or password")
+        email_verified = row.get("email_verified", False)
+        if not email_verified:
+            raise HTTPException(
+                status_code=403,
+                detail="Please verify your email before continuing. Check your inbox for the verification link.",
+            )
+
         user_result = db.select("brand_users", "brand_id", row["id"])
         user_id = user_result.data[0]["user_id"] if user_result.data else ""
         return BrandResponse(
@@ -78,6 +101,7 @@ async def login_brand(payload: BrandLogin):
             name=row.get("name") or row.get("brand_name"),
             status=row.get("status"),
             user_id=user_id,
+            email_verified=True,
         )
     except HTTPException:
         raise

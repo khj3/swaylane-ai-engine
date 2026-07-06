@@ -74,6 +74,21 @@ class BrandResponse(BaseModel):
     name: Optional[str] = None
     status: Optional[str] = None
     user_id: Optional[str] = None
+    email_verified: Optional[bool] = None
+
+
+class VerifyTokenRequest(BaseModel):
+    token: str
+
+
+class ResendVerificationRequest(BaseModel):
+    email: str
+
+
+class VerifyResponse(BaseModel):
+    verified: bool
+    message: str
+    brand_id: Optional[str] = None
 
 
 class BrandProfile(BaseModel):

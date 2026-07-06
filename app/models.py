@@ -94,6 +94,8 @@ class VerifyResponse(BaseModel):
 class BrandProfile(BaseModel):
     name: str
     brand_slug: Optional[str] = None
+    email_verified: Optional[bool] = None
+    contact_email: Optional[str] = None
     logo_url: Optional[str] = None
     description: Optional[str] = None
     website: Optional[str] = None

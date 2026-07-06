@@ -1,4 +1,5 @@
 import uuid
+import os
 import secrets
 import logging
 from datetime import datetime, timedelta, timezone
@@ -9,6 +10,22 @@ from ..services.email import send_verification_email
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/brands", tags=["verification"])
+
+import os
+
+# Dev-only: return the verification URL for a brand (only when no RESEND_API_KEY set)
+@router.get("/test-verify-url/{email}")
+async def test_verify_url(email: str):
+    if os.getenv("RESEND_API_KEY"):
+        return {"note": "Production mode - use email"}
+    result = db.select("brands", "contact_email", email)
+    if not result.data:
+        return {"error": "Brand not found"}
+    row = result.data[0]
+    token = row.get("verification_token")
+    if not token:
+        return {"error": "No pending verification token"}
+    return {"verify_url": f"{os.getenv('BRAND_PORTAL_URL', 'https://swaylanestudio.com/pages/brand-portal')}?verify={token}"}
 
 RESEND_COOLDOWN_SECONDS = 60
 TOKEN_EXPIRE_HOURS = 24

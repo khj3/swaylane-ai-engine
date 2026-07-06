@@ -10,7 +10,7 @@ async def send_verification_email(to_email: str, token: str, brand_name: str):
     verify_url = f"{BRAND_PORTAL_URL}?verify={token}"
 
     if not RESEND_API_KEY:
-        logger.warning(f"RESEND_API_KEY not set. Would send verification to {to_email}: {verify_url}")
+        logger.warning(f"RESEND_API_KEY not set. Verification URL: {verify_url}")
         return True
 
     import httpx

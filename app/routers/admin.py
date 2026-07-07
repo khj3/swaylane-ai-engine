@@ -77,9 +77,15 @@ async def list_submissions(status: str = None):
         rows = result.data or []
         if status:
             rows = [r for r in rows if r.get("status") == status]
+        brand_cache = {}
         for row in rows:
             row["ai_readiness_score"] = calculate_ai_readiness(row)
             row["rack_readiness_score"] = calculate_rack_readiness(row)
+            bid = row.get("brand_id", "")
+            if bid and bid not in brand_cache:
+                b = db.select_by_id("brands", bid)
+                brand_cache[bid] = b.data[0].get("brand_name", "") if b.data else ""
+            row["brand_name"] = brand_cache.get(bid, "")
         return {"products": rows}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))

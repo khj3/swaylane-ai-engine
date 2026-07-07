@@ -12,7 +12,7 @@ async def send_verification_email(to_email: str, token: str, brand_name: str):
 
     if not RESEND_API_KEY:
         logger.warning(f"RESEND_API_KEY not set. Verification URL: {verify_url}")
-        return False
+        return {"success": False, "error": "Email service not configured (RESEND_API_KEY missing)"}
 
     import httpx
     try:
@@ -57,7 +57,25 @@ async def send_verification_email(to_email: str, token: str, brand_name: str):
                 logger.info(f"Resend response body: {body_text[:500]}")
         except Exception:
             pass
-        return resp.is_success
+        if resp.is_success:
+            return {"success": True, "error": None}
+        else:
+            err_detail = f"Resend API returned {resp.status_code}"
+            try:
+                err_body = resp.text
+                if err_body:
+                    import json
+                    err_data = json.loads(err_body)
+                    if "message" in err_data:
+                        err_detail = err_data["message"]
+                    elif "error" in err_data:
+                        err_detail = err_data["error"]
+                    elif isinstance(err_data, dict) and "errors" in err_data:
+                        err_detail = "; ".join(e.get("message", str(e)) for e in err_data["errors"])
+            except Exception:
+                pass
+            logger.error(f"Resend error for {to_email}: {err_detail}")
+            return {"success": False, "error": err_detail}
     except Exception as e:
         logger.error(f"Failed to send verification email: {e}")
-        return False
+        return {"success": False, "error": f"Email service error: {e}"}

@@ -119,12 +119,12 @@ async def resend_verification(payload: ResendVerificationRequest):
             "verification_email_sent_at": now_iso,
         }, "id", brand_id)
 
-        email_sent = await send_verification_email(payload.email, new_token, brand_name)
-        if not email_sent:
-            logger.error(f"Failed to send verification email to {payload.email}. Token: {new_token}")
+        email_result = await send_verification_email(payload.email, new_token, brand_name)
+        if not email_result["success"]:
+            logger.error(f"Failed to send verification email to {payload.email}: {email_result['error']}. Token: {new_token}")
             return VerifyResponse(
                 verified=False,
-                message="Could not send verification email. Please try again later or contact support.",
+                message=f"Could not send verification email: {email_result['error']}",
                 brand_id=brand_id,
             )
 

@@ -63,9 +63,9 @@ async def create_brand(payload: BrandCreate):
         })
 
         brand_display_name = data.get("name", "Brand")
-        email_sent = await send_verification_email(data.get("contact_email", ""), verification_token, brand_display_name)
-        if not email_sent:
-            logger.warning(f"Verification email could not be sent to {data.get('contact_email')}. Token: {verification_token}")
+        email_result = await send_verification_email(data.get("contact_email", ""), verification_token, brand_display_name)
+        if not email_result["success"]:
+            logger.warning(f"Verification email could not be sent to {data.get('contact_email')}: {email_result['error']}. Token: {verification_token}")
 
         return BrandResponse(
             id=row.get("id"),

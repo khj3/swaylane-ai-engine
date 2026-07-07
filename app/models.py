@@ -118,6 +118,9 @@ class BrandProfile(BaseModel):
     return_policy: Optional[str] = None
     processing_time: Optional[str] = None
     customer_support_email: Optional[str] = None
+    rights_confirmation: Optional[bool] = None
+    rules_agreement: Optional[bool] = None
+    example_photo_urls: Optional[str] = None
 
 
 class BrandProductSubmission(BaseModel):

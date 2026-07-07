@@ -5,6 +5,7 @@ logger = logging.getLogger(__name__)
 
 RESEND_API_KEY = os.getenv("RESEND_API_KEY", "")
 BRAND_PORTAL_URL = os.getenv("BRAND_PORTAL_URL", "https://swaylanestudio.com/pages/brand-portal")
+EMAIL_FROM = os.getenv("EMAIL_FROM", "Sway Lane <noreply@swaylanestudio.com>")
 
 async def send_verification_email(to_email: str, token: str, brand_name: str):
     verify_url = f"{BRAND_PORTAL_URL}?verify={token}"
@@ -23,7 +24,7 @@ async def send_verification_email(to_email: str, token: str, brand_name: str):
                     "Content-Type": "application/json",
                 },
                 json={
-                "from": "Sway Lane <noreply@swaylanestudio.com>",
+                "from": EMAIL_FROM,
                 "to": [to_email],
                 "subject": "Verify your Sway Lane Brand Account",
                 "html": f"""<!DOCTYPE html>

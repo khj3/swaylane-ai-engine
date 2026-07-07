@@ -139,6 +139,8 @@ async def submit_product_for_review(submission_id: str):
         if not existing.data:
             raise HTTPException(status_code=404, detail="Product not found")
         row = existing.data[0]
+        extras = _get_product_extras(submission_id)
+        row.update(extras)
         missing = missing_items_ai(row)
         if missing:
             raise HTTPException(status_code=400, detail=f"Product is incomplete. Missing: {'; '.join(missing)}")

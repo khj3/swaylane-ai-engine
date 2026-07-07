@@ -11,17 +11,18 @@ async def send_verification_email(to_email: str, token: str, brand_name: str):
 
     if not RESEND_API_KEY:
         logger.warning(f"RESEND_API_KEY not set. Verification URL: {verify_url}")
-        return True
+        return False
 
     import httpx
     try:
-        resp = await httpx.AsyncClient().post(
-            "https://api.resend.com/emails",
-            headers={
-                "Authorization": f"Bearer {RESEND_API_KEY}",
-                "Content-Type": "application/json",
-            },
-            json={
+        async with httpx.AsyncClient() as client:
+            resp = await client.post(
+                "https://api.resend.com/emails",
+                headers={
+                    "Authorization": f"Bearer {RESEND_API_KEY}",
+                    "Content-Type": "application/json",
+                },
+                json={
                 "from": "Sway Lane <noreply@swaylanestudio.com>",
                 "to": [to_email],
                 "subject": "Verify your Sway Lane Brand Account",

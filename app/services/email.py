@@ -51,29 +51,25 @@ async def send_verification_email(to_email: str, token: str, brand_name: str):
             },
         )
         logger.info(f"Verification email sent to {to_email}: {resp.status_code}")
-        try:
-            body_text = resp.text
-            if body_text:
-                logger.info(f"Resend response body: {body_text[:500]}")
-        except Exception:
-            pass
+        resp_body = resp.text
+        if resp_body:
+            logger.info(f"Resend response: {resp_body[:500]}")
         if resp.is_success:
             return {"success": True, "error": None}
         else:
             err_detail = f"Resend API returned {resp.status_code}"
-            try:
-                err_body = resp.text
-                if err_body:
+            if resp_body:
+                try:
                     import json
-                    err_data = json.loads(err_body)
+                    err_data = json.loads(resp_body)
                     if "message" in err_data:
                         err_detail = err_data["message"]
                     elif "error" in err_data:
                         err_detail = err_data["error"]
                     elif isinstance(err_data, dict) and "errors" in err_data:
                         err_detail = "; ".join(e.get("message", str(e)) for e in err_data["errors"])
-            except Exception:
-                pass
+                except Exception:
+                    pass
             logger.error(f"Resend error for {to_email}: {err_detail}")
             return {"success": False, "error": err_detail}
     except Exception as e:

@@ -92,7 +92,7 @@ class VerifyResponse(BaseModel):
 
 
 class BrandProfile(BaseModel):
-    name: str
+    name: Optional[str] = None
     brand_slug: Optional[str] = None
     email_verified: Optional[bool] = None
     contact_email: Optional[str] = None

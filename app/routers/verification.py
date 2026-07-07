@@ -120,8 +120,13 @@ async def resend_verification(payload: ResendVerificationRequest):
         }, "id", brand_id)
 
         email_sent = await send_verification_email(payload.email, new_token, brand_name)
-        if not email_sent and not os.getenv("RESEND_API_KEY"):
-            logger.warning(f"Verification email not sent (no API key). Token for {payload.email}: {new_token}")
+        if not email_sent:
+            logger.error(f"Failed to send verification email to {payload.email}. Token: {new_token}")
+            return VerifyResponse(
+                verified=False,
+                message="Could not send verification email. Please try again later or contact support.",
+                brand_id=brand_id,
+            )
 
         return VerifyResponse(
             verified=False,

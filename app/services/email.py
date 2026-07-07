@@ -50,6 +50,12 @@ async def send_verification_email(to_email: str, token: str, brand_name: str):
             },
         )
         logger.info(f"Verification email sent to {to_email}: {resp.status_code}")
+        try:
+            body_text = resp.text
+            if body_text:
+                logger.info(f"Resend response body: {body_text[:500]}")
+        except Exception:
+            pass
         return resp.is_success
     except Exception as e:
         logger.error(f"Failed to send verification email: {e}")

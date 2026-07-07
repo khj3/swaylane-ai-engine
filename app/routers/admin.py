@@ -106,8 +106,8 @@ async def approve_product(submission_id: str, publish_to_shopify: bool = True):
         if not shopify_id:
             variants = db.select("product_variants", "product_submission_id", submission_id)
             images = db.select("product_images", "product_submission_id", submission_id)
-            row["variants"] = [v.data for v in variants.data] if variants.data else []
-            row["images"] = [i.data for i in images.data] if images.data else []
+            row["variants"] = variants.data or []
+            row["images"] = images.data or []
             result = await create_product(row, brand_name)
             if result:
                 shopify_id = result

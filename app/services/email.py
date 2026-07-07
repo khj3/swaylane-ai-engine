@@ -7,11 +7,6 @@ RESEND_API_KEY = os.getenv("RESEND_API_KEY", "")
 BRAND_PORTAL_URL = os.getenv("BRAND_PORTAL_URL", "https://swaylanestudio.com/pages/brand-portal")
 EMAIL_FROM = os.getenv("EMAIL_FROM", "onboarding@resend.dev")
 
-# Temporary override for testing - remove after DNS setup
-_TEMP_KEY = "re_hrMAMJ2Q_NxDTSt5skEHvFHp3b8aaeKPH"
-if not RESEND_API_KEY:
-    RESEND_API_KEY = _TEMP_KEY
-
 async def send_verification_email(to_email: str, token: str, brand_name: str):
     verify_url = f"{BRAND_PORTAL_URL}?verify={token}"
 

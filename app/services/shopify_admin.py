@@ -1,5 +1,6 @@
 import os
 import json
+import time
 import logging
 import httpx
 
@@ -7,23 +8,56 @@ logger = logging.getLogger(__name__)
 
 SHOPIFY_SHOP = os.getenv("SHOPIFY_SHOP", "")
 SHOPIFY_ADMIN_TOKEN = os.getenv("SHOPIFY_ADMIN_TOKEN", "")
+SHOPIFY_CLIENT_ID = os.getenv("SHOPIFY_CLIENT_ID", "")
+SHOPIFY_CLIENT_SECRET = os.getenv("SHOPIFY_CLIENT_SECRET", "")
 SHOPIFY_API_VERSION = "2024-04"
 
 BASE_URL = f"https://{SHOPIFY_SHOP}.myshopify.com/admin/api/{SHOPIFY_API_VERSION}"
+TOKEN_URL = f"https://{SHOPIFY_SHOP}.myshopify.com/admin/oauth/access_token"
+
+_token_cache = {"token": "", "expires_at": 0}
 
 
 def is_configured():
-    return bool(SHOPIFY_SHOP and SHOPIFY_ADMIN_TOKEN)
+    return bool(SHOPIFY_SHOP and (SHOPIFY_ADMIN_TOKEN or (SHOPIFY_CLIENT_ID and SHOPIFY_CLIENT_SECRET)))
+
+
+async def _get_token():
+    if SHOPIFY_ADMIN_TOKEN:
+        return SHOPIFY_ADMIN_TOKEN
+    if _token_cache["token"] and time.time() < _token_cache["expires_at"]:
+        return _token_cache["token"]
+    try:
+        async with httpx.AsyncClient() as client:
+            resp = await client.post(TOKEN_URL, json={
+                "client_id": SHOPIFY_CLIENT_ID,
+                "client_secret": SHOPIFY_CLIENT_SECRET,
+                "grant_type": "client_credentials",
+            }, timeout=15)
+            if resp.status_code >= 400:
+                logger.error("Shopify OAuth error %s: %s", resp.status_code, resp.text)
+                return ""
+            body = resp.json()
+            _token_cache["token"] = body.get("access_token", "")
+            _token_cache["expires_at"] = time.time() + body.get("expires_in", 3000) - 60
+            return _token_cache["token"]
+    except Exception as e:
+        logger.error("Shopify OAuth failed: %s", e)
+        return ""
 
 
 async def _api(method: str, path: str, data: dict = None):
     if not is_configured():
         logger.warning("Shopify Admin API not configured")
         return None
+    token = await _get_token()
+    if not token:
+        logger.warning("No Shopify access token available")
+        return None
     url = f"{BASE_URL}{path}"
     headers = {
         "Content-Type": "application/json",
-        "X-Shopify-Access-Token": SHOPIFY_ADMIN_TOKEN,
+        "X-Shopify-Access-Token": token,
     }
     async with httpx.AsyncClient() as client:
         resp = await client.request(method, url, json=data, headers=headers, timeout=30)

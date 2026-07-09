@@ -380,3 +380,22 @@ class BrandEarningsSummary(BaseModel):
     total_paid: float = 0
     order_count: int = 0
     currency: str = "USD"
+
+
+class ThreeDAsset(BaseModel):
+    id: Optional[str] = None
+    product_submission_id: str
+    tool_name: str
+    asset_type: str = "model"
+    input_image_url: Optional[str] = None
+    input_prompt: Optional[str] = None
+    output_url: Optional[str] = None
+    thumbnail_url: Optional[str] = None
+    status: str = "pending"
+    confidence_score: int = 0
+    geometry_quality: int = 0
+    texture_quality: int = 0
+    metadata: Optional[dict] = None
+    error_message: Optional[str] = None
+    created_at: Optional[str] = None
+    updated_at: Optional[str] = None

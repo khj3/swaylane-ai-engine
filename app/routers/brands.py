@@ -180,7 +180,18 @@ async def brand_dashboard(brand_id: str):
             missing_measurements=sum(1 for r in rows if not _has_measurements(r)),
             missing_rack_data=sum(1 for r in rows if (r.get("rack_readiness_score", 0) or 0) < 40),
         )
-        return metrics
+        result = metrics.dict()
+        ledger = db.select("sales_ledger", "brand_id", brand_id)
+        lrows = ledger.data or []
+        result["total_gross_sales"] = round(sum(float(r.get("gross_sales", 0)) for r in lrows), 2)
+        result["total_earnings"] = round(sum(float(r.get("brand_earnings", 0)) for r in lrows), 2)
+        result["total_fees"] = round(sum(float(r.get("platform_fee", 0)) for r in lrows), 2)
+        result["total_orders"] = len(set(r.get("shopify_order_id") for r in lrows if r.get("shopify_order_id")))
+        payouts = db.select("payouts", "brand_id", brand_id)
+        total_paid = sum(float(p.get("amount_paid", 0)) for p in (payouts.data or []) if p.get("payout_status") == "paid")
+        result["total_paid"] = round(total_paid, 2)
+        result["unpaid_earnings"] = round(max(0, result["total_earnings"] - total_paid), 2)
+        return result
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 

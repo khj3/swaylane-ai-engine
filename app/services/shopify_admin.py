@@ -1,10 +1,13 @@
 import os
 import json
+import uuid
 import time
 import logging
 import httpx
 
 logger = logging.getLogger(__name__)
+
+from .supabase import db
 
 SHOPIFY_SHOP = os.getenv("SHOPIFY_SHOP", "")
 SHOPIFY_ADMIN_TOKEN = os.getenv("SHOPIFY_ADMIN_TOKEN", "")
@@ -86,12 +89,26 @@ async def create_product(submission: dict, brand_name: str):
             await _add_variants(shopify_id, submission["variants"])
         if submission.get("images"):
             await _add_images(shopify_id, submission["images"])
+        brand_id = submission.get("brand_id", "")
+        if brand_id:
+            try:
+                db.insert("brand_product_connections", {
+                    "id": str(uuid.uuid4()),
+                    "shopify_product_id": shopify_id,
+                    "brand_id": brand_id,
+                    "product_title": submission.get("title", ""),
+                    "vendor_name": brand_name,
+                    "status": "active",
+                })
+            except Exception as e:
+                logger.error("Failed to store brand connection: %s", e)
         return shopify_id
     return None
 
 
 async def _add_metafields(shopify_id: str, submission: dict, brand_name: str):
     metafields = [
+        _mf("custom", "brand_id", submission.get("brand_id", "")),
         _mf("swaylane.brand", "brand_id", submission.get("brand_id", "")),
         _mf("swaylane.brand", "brand_name", brand_name),
         _mf("swaylane.fit", "fit_type", submission.get("fit_type", "")),

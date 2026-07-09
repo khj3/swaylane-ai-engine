@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import try_on, accounts, brands, analytics, loyalty, vault, fit, products, admin, rack, verification
+from app.routers import try_on, accounts, brands, analytics, loyalty, vault, fit, products, admin, rack, verification, webhooks, sales
 
 app = FastAPI(title="Sway Lane Studio API", version="2.2.0")
 
@@ -23,6 +23,8 @@ app.include_router(products.router, prefix="/api")
 app.include_router(admin.router, prefix="/api")
 app.include_router(rack.router, prefix="/api")
 app.include_router(verification.router, prefix="/api")
+app.include_router(webhooks.router, prefix="/api")
+app.include_router(sales.router, prefix="/api")
 
 
 @app.get("/health")

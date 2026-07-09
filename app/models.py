@@ -312,3 +312,71 @@ class BrandDashboardMetrics(BaseModel):
     missing_ai_data: int = 0
     missing_measurements: int = 0
     missing_rack_data: int = 0
+
+
+class BrandProductConnection(BaseModel):
+    id: Optional[str] = None
+    shopify_product_id: str
+    shopify_variant_id: Optional[str] = None
+    brand_id: str
+    product_title: Optional[str] = None
+    vendor_name: Optional[str] = None
+    status: str = "active"
+    created_at: Optional[str] = None
+    updated_at: Optional[str] = None
+
+
+class SalesLedgerEntry(BaseModel):
+    id: Optional[str] = None
+    shopify_order_id: str
+    shopify_line_item_id: str
+    shopify_product_id: Optional[str] = None
+    shopify_variant_id: Optional[str] = None
+    brand_id: str
+    quantity: int = 0
+    gross_sales: float = 0
+    discounts: float = 0
+    refunds: float = 0
+    net_sales: float = 0
+    platform_fee: float = 0
+    platform_fee_percent: float = 20.0
+    brand_earnings: float = 0
+    currency: str = "USD"
+    status: str = "earned"
+    order_created_at: Optional[str] = None
+    created_at: Optional[str] = None
+    updated_at: Optional[str] = None
+
+
+class PayoutRecord(BaseModel):
+    id: Optional[str] = None
+    brand_id: str
+    payout_period_start: Optional[str] = None
+    payout_period_end: Optional[str] = None
+    gross_sales: float = 0
+    total_discounts: float = 0
+    total_refunds: float = 0
+    total_platform_fees: float = 0
+    total_brand_earnings: float = 0
+    amount_paid: float = 0
+    payout_status: str = "pending"
+    paid_at: Optional[str] = None
+    payment_reference: Optional[str] = None
+    notes: Optional[str] = None
+    created_at: Optional[str] = None
+    updated_at: Optional[str] = None
+
+
+class BrandEarningsSummary(BaseModel):
+    brand_id: str
+    brand_name: str
+    total_gross_sales: float = 0
+    total_discounts: float = 0
+    total_refunds: float = 0
+    total_net_sales: float = 0
+    total_platform_fees: float = 0
+    total_brand_earnings: float = 0
+    unpaid_earnings: float = 0
+    total_paid: float = 0
+    order_count: int = 0
+    currency: str = "USD"
